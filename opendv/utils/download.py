@@ -1,11 +1,11 @@
 import os
 import cv2
+# import decord
 
 POSSIBLE_EXTS = ["mp4", "webm", "mkv"]
 
 def youtuber_formatize(youtuber):
     return youtuber.replace(" ", "_")
-
 
 def get_video_with_meta(video_path, need_metas=["fps", "duration", "num_frames"]):
     if not os.path.exists(video_path):
@@ -15,6 +15,7 @@ def get_video_with_meta(video_path, need_metas=["fps", "duration", "num_frames"]
         num_frames = -1
     else:
         try:
+            video = decord.VideoReader(video_path,ctx=decord.gpu(),num_threads=8)
             video = cv2.VideoCapture(video_path)
             fps = video.get(cv2.CAP_PROP_FPS)
             if fps == 0:
@@ -31,10 +32,11 @@ def get_video_with_meta(video_path, need_metas=["fps", "duration", "num_frames"]
                 if "num_frames" in need_metas:
                     num_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
                 if "duration" in need_metas:
-                    duration = video.get(cv2.CAP_PROP_FRAME_COUNT) / fps            
+                    duration = video.get(cv2.CAP_PROP_FRAME_COUNT) / fps         
                     
         except Exception as e:
-            print("Error: ", e)
+            # print(video_path)
+            # print("Error: ", e)
             video = None
             fps = -1
             duration = -1

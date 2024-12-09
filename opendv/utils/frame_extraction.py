@@ -16,7 +16,8 @@ from tqdm import tqdm
 from utils.download import get_video_with_meta
 
 DECORD_ACCEPTABLE_TYPES = ['mp4']
-FORCE_USE_CV2 = True
+# FORCE_USE_CV2 = True
+FORCE_USE_CV2 = False
 
 IDX_WIDTH = 9
 # set [IDX_WIDTH] to [None] if you want to use the default format, i.e. zero padding to the maximal index of a video
@@ -114,9 +115,12 @@ def decord_extract_frames(video_path, save_path, fps=10, discard_begin=90, disca
         os.makedirs(save_path)
     else:
         start_index = count_done_frames(save_path) -1
+        if start_index < 0:
+            start_index=0
         # so that we could rewrite the last frame, in case the last frame is corrupted
+    print(start_index)
 
-    video = decord.VideoReader(video_path, ctx=decord.cpu(), num_threads=1)
+    video = decord.VideoReader(video_path, ctx=decord.gpu(), num_threads=8)
     video_fps = video.get_avg_fps()
     num_frames = int( fps * (len(video) // video_fps - discard_begin - discard_end) )
     idx_width = len(str(num_frames)) if IDX_WIDTH is None else IDX_WIDTH
@@ -124,7 +128,7 @@ def decord_extract_frames(video_path, save_path, fps=10, discard_begin=90, disca
 
     img = video[0].asnumpy()
     frame_height, frame_width, _ = img.shape
-    if special_video_setting_log(video_path,  msg_file, frame_height, frame_width):
+    if special_video_setting_log(video_path,  msg_file, frame_height, frame_width, video):
         return
     del img
     first_log = True

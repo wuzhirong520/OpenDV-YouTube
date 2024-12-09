@@ -19,6 +19,7 @@ from utils.download import youtuber_formatize, POSSIBLE_EXTS, get_video_with_met
 CONFIGS = dict()
 
 def single_download(vid_info):
+
     url = vid_info["link"]
     filename = vid_info["videoid"]
     folder = youtuber_formatize(vid_info["youtuber"])
@@ -82,7 +83,7 @@ def check_status(video_list, configs):
             with open(configs.exception_file, "a") as f:
                 f.write(f"Video [{vid_info['videoid']}] not found in [{path}].\n")
             continue
-        
+
         _, true_duration = get_video_with_meta("{}/{}.{}".format(path, vid_info["videoid"], ext), ["duration"])
         
         duration_in_json = vid_info["duration"]
@@ -113,5 +114,7 @@ if __name__ == '__main__':
     if not os.path.exists(configs.root):
         os.makedirs(configs.root, exist_ok=True)
 
+    # check_status(video_list, configs)
+    # exit(0)
     multiple_download(video_list, configs)
     check_status(video_list, configs)
